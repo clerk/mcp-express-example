@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "test-server": {
+      "url": "http://localhost:3000/mcp/register",
+      "env": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
