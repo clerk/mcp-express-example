@@ -23,6 +23,10 @@ server.tool(
 
 const app = express();
 
+// SSE requires two separate endpoints that a single transport needs to
+// be shared between. For this simple demo implementation, we store the
+// transport in memory, but in production, relying on in-memory storage is not
+// recommended.
 let sseTransport: SSEServerTransport;
 
 // SSE transport handling
