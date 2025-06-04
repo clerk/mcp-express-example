@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "Express MCP Test": {
-      "url": "http://localhost:3000/mcp/register"
+    "express-mcp-test": {
+      "url": "http://localhost:3000/sse"
     }
   }
 }
