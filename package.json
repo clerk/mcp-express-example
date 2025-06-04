@@ -4,7 +4,7 @@
   "description": "mcp server tinkering",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx index.ts"
   },
   "author": "Jeff Escalante",
   "license": "MIT",
