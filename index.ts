@@ -33,7 +33,6 @@ let sseTransport: SSEServerTransport;
 app.get("/sse", async (_, res) => {
   sseTransport = new SSEServerTransport("/sse/message", res);
   await server.connect(sseTransport);
-  console.log("connected");
 });
 
 app.post("/sse/message", async (req, res) => {
