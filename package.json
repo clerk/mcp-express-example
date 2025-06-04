@@ -13,5 +13,8 @@
     "express": "^5.1.0",
     "raw-body": "^3.0.0",
     "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4"
   }
 }
