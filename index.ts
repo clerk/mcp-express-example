@@ -1,8 +1,18 @@
+import "dotenv/config";
 import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { z } from "zod";
+import { generateClerkProtectedResourceMetadata } from "@clerk/mcp-tools/server";
+import {
+  createClerkClient,
+  getAuth,
+  MachineAuthObject,
+  clerkMiddleware,
+} from "@clerk/express";
+
+const app = express();
+app.use(clerkMiddleware());
+app.use(express.json());
 
 const server = new McpServer({
   name: "test-server",
@@ -10,44 +20,93 @@ const server = new McpServer({
 });
 
 server.tool(
-  "roll_dice",
-  "Rolls an N-sided die",
-  { sides: z.number().int().min(2) },
-  async ({ sides }) => {
-    const value = 1 + Math.floor(Math.random() * sides);
+  "get_clerk_user_data",
+  "Gets data about the Clerk user that authorized this request",
+  {},
+  async (_, { authInfo }) => {
+    const clerkAuthInfo =
+      authInfo as unknown as MachineAuthObject<"oauth_token">;
+    if (!clerkAuthInfo?.userId) {
+      console.error(authInfo);
+      return {
+        content: [{ type: "text", text: "Error: user not authenticated" }],
+      };
+    }
+    const user = await clerk.users.getUser(clerkAuthInfo.userId);
     return {
-      content: [{ type: "text", text: `🎲 You rolled a ${value}!` }],
+      content: [{ type: "text", text: JSON.stringify(user) }],
     };
   }
 );
 
-const app = express();
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
-// SSE requires two separate endpoints that a single transport needs to
-// be shared between. For this simple demo implementation, we store the
-// transport in memory, but in production, relying on in-memory storage is not
-// recommended.
-let sseTransport: SSEServerTransport;
+async function verifyToken(_, req: express.Request) {
+  const authData = await getAuth(req, { acceptsToken: "oauth_token" });
+  return authData.isAuthenticated ? authData : false;
+}
 
-// SSE transport handling
-app.get("/sse", async (_, res) => {
-  sseTransport = new SSEServerTransport("/sse/message", res);
-  await server.connect(sseTransport);
-});
+// move to tools lib
+async function mcpAuth(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
+  const origin = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
 
-app.post("/sse/message", async (req, res) => {
-  await sseTransport.handlePostMessage(req, res);
-});
+  if (!req.headers["authorization"]) {
+    return res
+      .status(401)
+      .set({
+        "WWW-Authenticate": `Bearer resource_metadata=${origin}/.well-known/oauth-protected-resource`,
+      })
+      .send();
+  } else {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader?.split(" ")[1];
 
-// Streamable HTTP transport handling
-app.post("/mcp", express.json(), async (req, res) => {
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
+    if (!token) {
+      throw new Error(
+        `Invalid authorization header value, expected Bearer <token>, received ${authHeader}`
+      );
+    }
+
+    const authData = await verifyToken(token, req);
+
+    if (!authData) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    req.auth = {
+      userId: authData.userId,
+    };
+  }
+
+  next();
+}
+
+app.post(
+  "/mcp",
+  mcpAuth,
+  async (req: express.Request, res: express.Response) => {
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
+
+    await server.connect(transport);
+
+    await transport.handleRequest(req, res, req.body);
+  }
+);
+
+// make handler in tools lib
+app.get("/.well-known/oauth-protected-resource", async (_, res) => {
+  const metadata = await generateClerkProtectedResourceMetadata({
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
+    resourceUrl: "http://localhost:3000",
   });
 
-  await server.connect(transport);
-
-  await transport.handleRequest(req, res, req.body);
+  res.json(metadata);
 });
 
 app.listen(3000);
