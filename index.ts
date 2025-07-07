@@ -41,6 +41,10 @@ server.tool(
   }
 );
 
+// Note: OAuth tokens are machine tokens. Machine token usage is free
+// during our public beta period but will be subject to pricing once
+// generally available. Pricing is expected to be competitive and below
+// market averages.
 app.post("/mcp", mcpAuthClerk, streamableHttpHandler(server));
 app.get("/.well-known/oauth-protected-resource", protectedResourceHandlerClerk);
 
