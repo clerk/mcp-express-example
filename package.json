@@ -9,7 +9,7 @@
   "author": "Jeff Escalante",
   "license": "MIT",
   "dependencies": {
-    "@clerk/express": "^1.7.0",
+    "@clerk/express": "^1.7.5",
     "@clerk/mcp-tools": "^0.0.4",
     "@modelcontextprotocol/sdk": "^1.12.3",
     "dotenv": "^16.5.0",
