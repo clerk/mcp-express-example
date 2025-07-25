@@ -1,15 +1,13 @@
 import "dotenv/config";
-import {
-  type MachineAuthObject,
-  clerkClient,
-  clerkMiddleware,
-} from "@clerk/express";
+import { clerkClient, clerkMiddleware } from "@clerk/express";
 import {
   mcpAuthClerk,
   protectedResourceHandlerClerk,
   streamableHttpHandler,
+  authServerMetadataHandlerClerk,
 } from "@clerk/mcp-tools/express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import cors from "cors";
 import express from "express";
 
 const app = express();
@@ -26,17 +24,12 @@ server.tool(
   "Gets data about the Clerk user that authorized this request",
   {},
   async (_, { authInfo }) => {
-    const clerkAuthInfo =
-      authInfo as unknown as MachineAuthObject<"oauth_token">;
-    if (!clerkAuthInfo?.userId) {
-      console.error(authInfo);
-      return {
-        content: [{ type: "text", text: "Error: user not authenticated" }],
-      };
-    }
-    const user = await clerkClient.users.getUser(clerkAuthInfo.userId);
+    // non-null assertion is safe here, authHandler ensures presence
+    const userId = authInfo!.extra!.userId! as string;
+    const userData = await clerkClient.users.getUser(userId);
+
     return {
-      content: [{ type: "text", text: JSON.stringify(user) }],
+      content: [{ type: "text", text: JSON.stringify(userData) }],
     };
   }
 );
@@ -46,6 +39,20 @@ server.tool(
 // generally available. Pricing is expected to be competitive and below
 // market averages.
 app.post("/mcp", mcpAuthClerk, streamableHttpHandler(server));
-app.get("/.well-known/oauth-protected-resource", protectedResourceHandlerClerk);
 
-app.listen(3000);
+// handle oauth metadata requests
+app.get(
+  "/.well-known/oauth-protected-resource/mcp",
+  cors(),
+  protectedResourceHandlerClerk
+);
+
+app.get(
+  "/.well-known/oauth-authorization-server",
+  cors(),
+  authServerMetadataHandlerClerk
+);
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
