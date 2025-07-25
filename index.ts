@@ -9,8 +9,12 @@ import {
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import cors from "cors";
 import express from "express";
+import https from "node:https";
+import fs from "node:fs";
+import path from "node:path";
 
 const app = express();
+app.use(cors({ exposedHeaders: ["WWW-Authenticate"] }));
 app.use(clerkMiddleware());
 app.use(express.json());
 
@@ -24,7 +28,7 @@ server.tool(
   "Gets data about the Clerk user that authorized this request",
   {},
   async (_, { authInfo }) => {
-    // non-null assertion is safe here, authHandler ensures presence
+    // non-null assertion is safe here, mcpAuthClerk ensures presence
     const userId = authInfo!.extra!.userId! as string;
     const userData = await clerkClient.users.getUser(userId);
 
@@ -43,16 +47,35 @@ app.post("/mcp", mcpAuthClerk, streamableHttpHandler(server));
 // handle oauth metadata requests
 app.get(
   "/.well-known/oauth-protected-resource/mcp",
-  cors(),
-  protectedResourceHandlerClerk
+  protectedResourceHandlerClerk({ scopes_supported: ["email", "profile"] })
 );
 
 app.get(
   "/.well-known/oauth-authorization-server",
-  cors(),
   authServerMetadataHandlerClerk
 );
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.use((req, res) => {
+  console.log("ANY request received:", req.url);
+  res.json({ message: "Hello from server" });
 });
+
+// Start HTTP server
+app.listen(3000, () => {
+  console.log("HTTP server running at http://localhost:3000");
+});
+
+// HTTPS Server handling - required for testing w/ claude 😞
+const certPath = path.join(process.cwd(), "cert", "localhost+2.pem");
+const keyPath = path.join(process.cwd(), "cert", "localhost+2-key.pem");
+
+if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+  const sslOptions = {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
+
+  https.createServer(sslOptions, app).listen(3001, () => {
+    console.log("HTTPS server running at https://localhost:3001");
+  });
+}

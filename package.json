@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@clerk/express": "^1.7.12",
-    "@clerk/mcp-tools": "0.2.2",
+    "@clerk/mcp-tools": "0.3.0",
     "@modelcontextprotocol/sdk": "^1.17.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
