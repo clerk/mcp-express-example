@@ -23,11 +23,12 @@ const server = new McpServer({
   version: "0.0.1",
 });
 
-server.tool(
+server.registerTool(
   "get_clerk_user_data",
-  "Gets data about the Clerk user that authorized this request",
-  {},
-  async (_, { authInfo }) => {
+  {
+    description: 'Gets data about the Clerk user that authorized this request',
+  },
+  async ({ authInfo }) => {
     // non-null assertion is safe here, mcpAuthClerk ensures presence
     const userId = authInfo!.extra!.userId! as string;
     const userData = await clerkClient.users.getUser(userId);
