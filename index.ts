@@ -26,7 +26,7 @@ const server = new McpServer({
 server.registerTool(
   "get_clerk_user_data",
   {
-    description: 'Gets data about the Clerk user that authorized this request',
+    description: "Gets data about the Clerk user that authorized this request",
   },
   async ({ authInfo }) => {
     // non-null assertion is safe here, mcpAuthClerk ensures presence

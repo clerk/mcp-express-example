@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "express-mcp-test": {
+    "mcp-clerk-express": {
       "url": "http://localhost:3000/mcp"
     }
   }
