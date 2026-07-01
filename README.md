@@ -7,7 +7,7 @@ A minimal example of an MCP server endpoint using Express and Clerk for authenti
 - Run `pnpm i` to install dependencies.
 - Create a Clerk application, then toggle on the **Dynamic client registration** option in the [**OAuth applications**](https://dashboard.clerk.com/~/oauth-applications) page in the Clerk Dashboard.
 - Run `cp .env.example .env` and copy your Clerk API keys from the [**API keys**](https://dashboard.clerk.com/~/api-keys) page in the Clerk Dashboard into the `.env` file.
-- Run `pnpm start` to start the server.
+- Run `pnpm run dev` to start the server.
 - You should be able to connect to it now from any client that supports the latest version of the MCP spec. A cursor configuration is provided as a test.
 
 ### Connecting to the server
