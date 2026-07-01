@@ -4,6 +4,7 @@ A minimal example of an MCP server endpoint using Express and Clerk for authenti
 
 ### Getting started
 
+- Make sure you're running Node.js `>= 22.18` — the dev script runs TypeScript directly using Node's type stripping.
 - Run `pnpm i` to install dependencies.
 - Create a Clerk application, then toggle on the **Dynamic client registration** option in the [**OAuth applications**](https://dashboard.clerk.com/~/oauth-applications) page in the Clerk Dashboard.
 - Run `cp .env.example .env` and copy your Clerk API keys from the [**API keys**](https://dashboard.clerk.com/~/api-keys) page in the Clerk Dashboard into the `.env` file.
