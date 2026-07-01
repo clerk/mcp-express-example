@@ -51,6 +51,6 @@ By default, the server runs on HTTP only. To enable HTTPS for development (usefu
    mv localhost+2*.pem cert/
    ```
 
-4. **Restart the server** - it will automatically detect the certificates and start both HTTP (port 3000) and HTTPS (port 3001) servers.
+4. **Restart the server** - certificate files aren't watched, so stop and rerun `pnpm run dev`. On startup, the server detects the certificates and starts both HTTP (port 3000) and HTTPS (port 3001) servers.
 
 The certificates are gitignored, so each developer needs to generate their own locally trusted certificates.

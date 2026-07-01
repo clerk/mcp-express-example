@@ -2,11 +2,10 @@
   "name": "mcp-clerk-express",
   "version": "0.2.1",
   "description": "A demo MCP server using Clerk and Express",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "vite-node index.ts",
-    "dev": "vite-node --watch index.ts"
+    "dev": "node --watch index.ts"
   },
   "author": "Jeff Escalante",
   "license": "MIT",
