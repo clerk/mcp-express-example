@@ -1,7 +1,7 @@
 {
   "name": "mcp-demo-express",
-  "version": "0.2.0",
-  "description": "A demo MCP server using Clerk andexpress",
+  "version": "0.3.0",
+  "description": "A demo MCP server using Clerk and express",
   "main": "index.js",
   "scripts": {
     "start": "vite-node index.ts"
@@ -9,14 +9,15 @@
   "author": "Jeff Escalante",
   "license": "MIT",
   "dependencies": {
-    "@clerk/express": "^1.7.12",
-    "@clerk/mcp-tools": "0.3.0",
-    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@clerk/express": "^2.1.5",
+    "@clerk/mcp-tools": "0.7.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
     "typescript": "^5.8.3",
